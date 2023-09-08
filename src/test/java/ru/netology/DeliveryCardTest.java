@@ -1,47 +1,52 @@
 package ru.netology;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.Keys;
+import org.openqa.selenium.By;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static com.codeborne.selenide.Selectors.withText;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
-class DeliveryCardTest {
-
-    String[] monthNames = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
-    String date;
-    String month;
-    String day;
-
+public class DeliveryCardTest {
     @BeforeEach
-    <Calendar>
     void setUp() {
+        Configuration.browser = "chrome";
         open("http://localhost:9999");
     }
 
+    public String generateTestDate(int addDays, String pattern) {
+        return LocalDate.now().plusDays(addDays).format((DateTimeFormatter.ofPattern(pattern)));
+    }
+
     @Test
-    public void shouldReturnSuccessIfFieldsAreFilledInCorrectly() {
+    void shouldSendFormTest() {
+        String planningDate = generateTestDate(4, "dd.MM.yyyy");
 
-        LocalDate deliveryDateCard = LocalDate.now().plusDays(3);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        String dateText = deliveryDateCard.format(formatter);
+        $("[data-test-id=city] input").sendKeys("Челябинск");
+        $("[data-test-id=city] input").shouldBe(Condition.value("Челябинск"));
 
-        $("[data-test-id=city] [placeholder='Город']").setValue("Челябинск");
-        $("[data-test-id=date] [class='input__box'] [placeholder='Дата встречи']").doubleClick().sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] [class='input__box'] [placeholder='Дата встречи']").setValue(dateText);
-        $("[data-test-id=name] [type=text]").setValue("Алибек Мусабаев");
-        $("[data-test-id=phone] [type=tel]").setValue("+79512525252");
+        $(By.cssSelector("[data-test-id=date] input")).doubleClick().sendKeys(planningDate);
+        $(By.cssSelector("[data-test-id=date] input")).shouldBe(Condition.value(planningDate));
+
+        $("[data-test-id=name] input").sendKeys("Виталий Петров");
+        $("[data-test-id=name] input").shouldBe(Condition.value("Виталий Петров"));
+
+        $("[data-test-id=phone] input").sendKeys("+79512345678");
+        $("[data-test-id=phone] input").shouldBe(Condition.value("+79512345678"));
+
         $("[data-test-id=agreement]").click();
-        $("[role=button] .button__content").click();
-        $(withText("Успешно!")).shouldBe(Condition.visible, Duration.ofMillis(15000));
-        $("[data-test-id='notification'] .notification__content")
-                .shouldHave(Condition.exactText("Встреча успешно забронирована на " + dateText));
+        $("[data-test-id=agreement] input").shouldBe(Condition.selected);
+
+        $("div.grid-col button.button_view_extra").click();
+
+        $("[data-test-id=notification]").shouldHave(text("Встреча успешно забронирована на " + planningDate), Duration.ofSeconds(15)).shouldBe(visible);
     }
 }
