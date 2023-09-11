@@ -1,1 +1,1 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/y57m96b89y6vgcnc?svg=true)](https://ci.appveyor.com/project/Dimonstratos/deliverycard)
+[![Build status](https://ci.appveyor.com/api/projects/status/dn8n03umqxl91t95?svg=true)](https://ci.appveyor.com/project/Dimonstratos/deliverycard)
